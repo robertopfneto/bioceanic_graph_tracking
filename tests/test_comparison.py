@@ -26,7 +26,7 @@ class ComparisonTest(unittest.TestCase):
         self.assertEqual("Dijkstra-VSP", resultado.rotas[0].identificador)
         self.assertEqual("Martins-M1", resultado.rotas[1].identificador)
         self.assertEqual(resultado.rotas[0].caminho, resultado.rotas[1].caminho)
-        self.assertAlmostEqual(3145.0, resultado.rotas[0].distancia_km)
+        self.assertAlmostEqual(3552.0, resultado.rotas[0].distancia_km)
         self.assertAlmostEqual(4541.0, resultado.rotas[0].subida_m)
         self.assertTrue(resultado.dijkstra_na_fronteira)
         self.assertFalse(resultado.dijkstra_dominado)

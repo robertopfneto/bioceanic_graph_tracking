@@ -79,14 +79,14 @@ def construir_grafo() -> Grafo:
         Aresta("MJF Estigarribia", "Pozo Hondo", 220, None),   # Ruta PY15
         # --- Fronteira PY/AR ---
         Aresta("Pozo Hondo", "Mision La Paz", 2, None),        # Ponte s/ Pilcomayo
-        
-        
+
+
         # --- Argentina ---
-        
+
         # deslocamento real e não mínimos para refletir um cenário realista
         Aresta("Mision La Paz", "Pozo de Maza", 185, None),     # RP 54
-        Aresta("Pozo de Maza", "Tartagal", 335, None),    
-        
+        Aresta("Pozo de Maza", "Tartagal", 335, None),
+
         # RP54/RN34
         Aresta("Tartagal", "San Salvador de Jujuy", 325, None),# RN34
         Aresta("Tartagal", "Salta", 365, None),                # RN34/RN9
