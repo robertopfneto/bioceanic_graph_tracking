@@ -1,35 +1,35 @@
 """
 cost.py — Função de custo energético baseada no modelo VSP
 
-Referência principal:
-    Gonçalves, G.A., Mendes, T. & Coelho, M. (2016). Impact of driving
-    styles on greenhouse gas emissions from urban freight distribution.
-    Transportation Research Part D, 46, 15-31.
-    DOI: https://doi.org/10.1016/j.trd.2016.03.009
-
-    Os coeficientes FR_G=0,132 e C_AERO=0,000302 são validados para HDV
-    (veículo pesado de carga) a 80 km/h em cruzeiro constante, produzindo
-    VSP ≈ 6,25 kW/t em pista plana e ≈ 10,60 kW/t em aclive de 2%,
-    enquadrando-se nos Modos 5 e 7 da classificação VSP.
-
 Referência original da fórmula VSP:
-    Jiménez-Palacios, J.L. (1999). MIT Thesis, conforme citado em
-    Jiang et al. (2025), Atmosphere 16(2):143,
+    Jiménez-Palacios, J.L. (1999). Understanding and Quantifying Motor
+    Vehicle Emissions with Vehicle Specific Power and TILDAS Remote Sensing.
+    Ph.D. Thesis, Massachusetts Institute of Technology.
+    http://hdl.handle.net/1721.1/44505
+
+Referência de apoio sobre inclinação da via e velocidade:
+    Jiang, B. et al. (2025). Impact of Road Gradient on Fuel Consumption of
+    Light-Duty Diesel Vehicles. Atmosphere, 16(2):143.
     DOI: https://doi.org/10.3390/atmos16020143
+
+Escopo:
+    A integração da expressão VSP em energia específica, com velocidade
+    constante e aceleração longitudinal nula, é uma derivação adotada neste
+    projeto. Não há aqui calibração ou validação específica para veículos
+    pesados (HDV). O valor calculado é um indicador comparativo de rota, não
+    uma previsão calibrada de combustível ou emissões.
 """
 
 import math
 from graph import Cidade, Aresta, Grafo
 
 
-# Coeficientes VSP — Jiménez-Palacios (1999), conforme Jiang et al. (2025)
-# Aplicabilidade a veículos pesados (HDV) validada por Gonçalves et al. (2016),
-# que aplicaram o modelo VSP a frotas de distribuição urbana de carga na Europa,
-# demonstrando que os coeficientes da formulação original se mantêm coerentes
-# para HDV em regime de cruzeiro.
+# Coeficientes da formulação VSP adotada como referência. O projeto não
+# reivindica que estes valores estejam calibrados para uma classe veicular
+# específica.
 G = 9.81             # aceleração gravitacional [m/s²]
 FR_G = 0.132         # f_r * g [m/s²] — resistência de rolamento (Jiménez-Palacios, 1999)
-C_AERO = 0.000302    # coeficiente aerodinâmico específico [(m/s)^-2] (Jiménez-Palacios, 1999)
+C_AERO = 0.000302    # coeficiente aerodinâmico específico [m^-1] (Jiménez-Palacios, 1999)
 
 
 def calcular_energia(origem: Cidade,destino: Cidade,aresta: Aresta, velocidade_ms: float) -> float:
@@ -37,8 +37,12 @@ def calcular_energia(origem: Cidade,destino: Cidade,aresta: Aresta, velocidade_m
     Calcula a energia específica de travessia da aresta u -> v [J/kg].
 
     Derivação (Jiménez-Palacios, 1999, adaptado):
-        VSP = v * (9.8*s + 0.132) + 0.000302 * v³     [kW/t]
-        E   = VSP * (d/v) = 9.8*Δh + 0.132*d + 0.000302*v²*d  [J/kg]
+        VSP = v * (9.81*s + 0.132) + 0.000302 * v³
+        E   = VSP * (d/v) = 9.81*Δh + 0.132*d + 0.000302*v²*d
+
+        A expressão considera aceleração longitudinal nula e aproxima
+        s*d por Δh. Como 1 kW/t equivale a 1 W/kg, a integração no tempo
+        resulta em J/kg.
 
     Parâmetros:
         origem, destino : objetos Cidade com altitude_m
@@ -49,10 +53,11 @@ def calcular_energia(origem: Cidade,destino: Cidade,aresta: Aresta, velocidade_m
         Energia específica em J/kg (pode ser negativa em descidas íngremes,
         mas com os dados desta rota todas as arestas ficam positivas).
 
-    Tratamento especial para passos andinos:
+    Adaptação do projeto para passos andinos:
         Se aresta.alt_passo_m está definida, a subida é calculada até
         a cota do passo (a descida é dissipada na frenagem, sem recuperação).
-        Isso evita subestimar o custo energético de cruzar os Andes.
+        Isso evita subestimar o custo energético de cruzar os Andes. Essa
+        hipótese não é atribuída às referências de VSP acima.
     """
     d_m = aresta.dist_km * 1000.0
 

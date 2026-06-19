@@ -1,2 +1,6 @@
 */__pycache__
 src/search_algorithms/__pycache__/*
+__pycache__/
+outputs/
+.codex
+.agents

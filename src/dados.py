@@ -65,13 +65,13 @@ def construir_grafo() -> Grafo:
         # --- Brasil ---
         Aresta("Santos", "Presidente Epitacio", 635, None),    # SP-270/BR-267
         Aresta("Santos", "Tres Lagoas", 648, None),            # SP-300/BR-262
-        Aresta("Presidente Epitacio", "Bataguassu", 14, None), # Ponte Maurício Joppert
-        Aresta("Bataguassu", "Nova Alvorada do Sul", 132, None),# BR-267
-        Aresta("Nova Alvorada do Sul", "Campo Grande", 116, None),# BR-163
+        Aresta("Presidente Epitacio", "Bataguassu", 36, None), # Ponte Maurício Joppert
+        Aresta("Bataguassu", "Nova Alvorada do Sul", 248, None),# BR-267
+        Aresta("Nova Alvorada do Sul", "Campo Grande", 121, None),# BR-163
         Aresta("Tres Lagoas", "Campo Grande", 326, None),      # BR-262
         Aresta("Campo Grande", "Porto Murtinho", 438, None),   # BR-060/BR-267
         # --- Fronteira BR/PY ---
-        Aresta("Porto Murtinho", "Carmelo Peralta", 5, None),  # Ponte Bioceânica
+        Aresta("Porto Murtinho", "Carmelo Peralta", 3, None),  # Ponte Bioceânica
         # --- Paraguai (Chaco) ---
         Aresta("Carmelo Peralta", "Loma Plata", 277, None),    # Ruta PY15
         Aresta("Carmelo Peralta", "MJF Estigarribia", 295, None),# Ruta alternativa
@@ -79,9 +79,15 @@ def construir_grafo() -> Grafo:
         Aresta("MJF Estigarribia", "Pozo Hondo", 220, None),   # Ruta PY15
         # --- Fronteira PY/AR ---
         Aresta("Pozo Hondo", "Mision La Paz", 2, None),        # Ponte s/ Pilcomayo
+        
+        
         # --- Argentina ---
-        Aresta("Mision La Paz", "Pozo de Maza", 67, None),     # RP 54
-        Aresta("Pozo de Maza", "Tartagal", 121, None),         # RP54/RN34
+        
+        # deslocamento real e não mínimos para refletir um cenário realista
+        Aresta("Mision La Paz", "Pozo de Maza", 185, None),     # RP 54
+        Aresta("Pozo de Maza", "Tartagal", 335, None),    
+        
+        # RP54/RN34
         Aresta("Tartagal", "San Salvador de Jujuy", 325, None),# RN34
         Aresta("Tartagal", "Salta", 365, None),                # RN34/RN9
         Aresta("San Salvador de Jujuy", "Salta", 120, None),   # RN9

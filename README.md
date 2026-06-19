@@ -8,16 +8,26 @@ Modelagem e otimização de rotas na **Rota Bioceânica de Capricórnio (Rota 4)
 
 ```
 bioceanic_graph_tracking/
-├── main.py                          # ponto de entrada (stub)
+├── main.py                          # ponto de entrada da avaliação
 ├── src/
 │   ├── graph.py                     # estruturas de dados: Cidade, Aresta, Grafo
 │   ├── cost.py                      # função de custo energético (modelo VSP)
-│   ├── dados.py                     # dados da rota (26 cidades, 31 arestas bidirecionais)
+│   ├── dados.py                     # dados da rota (26 cidades, 32 arestas bidirecionais)
 │   └── search_algorithms/
 │       ├── dijkstra.py              # menor caminho mono-critério (energia mínima)
 │       └── martins.py               # menor caminho multi-critério (fronteira de Pareto)
-└── utils/
-    └── evaluation.py                # métricas comparativas (stub)
+└── evaluation/
+    ├── models.py                    # configuração e resultados estruturados
+    ├── validation.py                # validações de pré-voo
+    ├── route_metrics.py             # métricas comuns das rotas
+    ├── comparison.py                # Dijkstra-VSP × Martins
+    ├── experiments/                 # desempenho, sensibilidade e robustez
+    ├── experiment_exporters.py      # CSV/JSON dos experimentos
+    ├── experiment_plotting.py       # gráficos dos experimentos
+    ├── exporters.py                 # exportação CSV/JSON
+    ├── plotting.py                  # gráficos comparativos
+    ├── reporting.py                 # resumo textual
+    └── pipeline.py                  # orquestração top-down
 ```
 
 ---
@@ -43,7 +53,7 @@ O grafo representa a **Rota Bioceânica de Capricórnio** com:
 
 ## Modelo de custo energético (VSP)
 
-O custo de travessia de cada aresta é calculado como **energia específica [J/kg]** pela formulação VSP (*Vehicle Specific Power*):
+O custo de travessia de cada aresta é uma **estimativa de energia específica [J/kg]** derivada da formulação VSP (*Vehicle Specific Power*), sob velocidade constante e aceleração longitudinal nula:
 
 ```
 E = G·Δh  +  FR_G·d  +  C_AERO·v²·d
@@ -53,13 +63,15 @@ E = G·Δh  +  FR_G·d  +  C_AERO·v²·d
 |-------|-------------|
 | `G·Δh` | Energia gravitacional (`G = 9,81 m/s²`) |
 | `FR_G·d` | Resistência de rolamento (`FR_G = 0,132 m/s²`) |
-| `C_AERO·v²·d` | Resistência aerodinâmica (`C_AERO = 0,000302 (m/s)⁻²`) |
+| `C_AERO·v²·d` | Resistência aerodinâmica (`C_AERO = 0,000302 m⁻¹`) |
 
-Os coeficientes `FR_G` e `C_AERO` são validados para **HDV (veículo pesado de carga) a 80 km/h** em regime de cruzeiro.
+Os coeficientes `FR_G` e `C_AERO` são os valores da formulação VSP adotada como referência. Este projeto **não reivindica validação específica para veículos pesados (HDV)**; o resultado deve ser interpretado como indicador energético comparativo entre rotas, e não como previsão calibrada de consumo de combustível ou emissões de uma frota real.
 
-**Tratamento especial para passos andinos:** quando `alt_passo_m` está definido, Δh é calculado até o pico (não até o destino), pois a energia de descida é dissipada em frenagem — evita subestimar o custo de cruzar os Andes.
+**Adaptação para passos andinos:** quando `alt_passo_m` está definido, Δh é calculado até o pico, e não apenas até o destino. A energia potencial da descida posterior não é recuperada. Essa é uma hipótese de modelagem deste projeto para evitar subestimar o custo de cruzar os Andes; não é uma regra estabelecida pelos trabalhos de VSP citados.
 
 O grafo é **direcionado**: o custo de u → v difere de v → u em razão do Δh assimétrico.
+
+Nos trechos sem `alt_passo_m`, o termo gravitacional usa a variação de altitude com sinal. Já Martins acumula somente ganho positivo de elevação. Portanto, energia e subida acumulada são objetivos relacionados, mas não equivalentes; a rota do Dijkstra não precisa pertencer à fronteira `(distância, subida)` de Martins.
 
 ---
 
@@ -75,16 +87,56 @@ Encontra o caminho de **menor energia total [J/kg]** entre origem e destino.
 
 ### Martins — fronteira de Pareto
 
-Determina **todos os caminhos Pareto-ótimos** nos critérios `(distância [km], ganho de elevação [m])`.
+Determina os vetores de custo não dominados nos critérios `(distância [km], ganho de elevação [m])` e retorna uma rota representativa para cada par de valores. Caminhos distintos com exatamente o mesmo vetor de custo são consolidados.
 
-- **Complexidade:** O(V²) no pior caso
+- **Complexidade:** dependente da quantidade de rótulos gerados. Como o número de caminhos não dominados pode crescer exponencialmente, não há garantia geral de O(V²); `ResultadoMartins.rotulos_expandidos` permite caracterizar o custo observado.
 - **Critérios:** distância total e ganho de elevação acumulado (somente subida; descida dissipada)
 - **Saída:** `ResultadoMartins` com `fronteira_pareto` — lista de `(dist_km, subida_m, caminho)` — e `rotulos_expandidos`
 - Cada rótulo armazena `(dist, subida, pred_node, pred_idx)` para reconstrução do caminho
 
 ---
 
-## Como executar
+## Como executar a avaliação
+
+Instale a dependência gráfica e execute a partir da raiz do projeto:
+
+```bash
+python -m pip install -r requirements.txt
+python main.py
+```
+
+Por padrão, o experimento usa origem `Santos`, destinos `Antofagasta` e `Iquique` e velocidade de 80 km/h. Outros valores podem ser informados pela CLI:
+
+```bash
+python main.py --origem Santos --destinos Antofagasta --velocidade-kmh 80
+```
+
+Os tamanhos padrão dos experimentos podem ser alterados sem modificar o código:
+
+```bash
+python main.py \
+  --repeticoes-desempenho 1000 \
+  --simulacoes-monte-carlo 2000 \
+  --seed 42
+```
+
+Para cada destino são gerados em `outputs/evaluation/<destino>/`:
+
+- `rotas.csv` e `resultado.json`, com as métricas comuns de todas as rotas;
+- `rotas.png`, com a melhor rota VSP e cada solução de Martins;
+- `fronteira_pareto.png`, com Dijkstra como referência externa;
+- `comparacao_metricas.png`, com energia, distância e subida.
+- `desempenho.csv/json/png`, com os tempos brutos, média, desvio padrão, IC 95% e Mann-Whitney unilateral;
+- `sensibilidade.csv/json/png`, com as execuções a 40, 60, 80, 100 e 120 km/h e as correlações de Pearson para `v` e `v²`;
+- `robustez.csv/json/png`, com o tamanho da fronteira em cada uma das 2.000 simulações Monte Carlo.
+
+A comparação principal é entre duas formas de ponderar as arestas: energia escalar VSP, otimizada por Dijkstra, e custo vetorial `(distância, subida)`, otimizado por Martins. A presença da rota do Dijkstra na fronteira é uma análise de compatibilidade entre objetivos, não um teste de correção dos algoritmos.
+
+No benchmark, a ordem de execução dos algoritmos é randomizada em cada repetição após uma fase de aquecimento. O teste Mann-Whitney usa a hipótese alternativa `tempo(Dijkstra) < tempo(Martins)`. Na sensibilidade, `Pearson(v, energia)` atende à análise proposta, enquanto `Pearson(v², energia)` verifica a relação quadrática esperada pela própria formulação VSP.
+
+No Monte Carlo, cada distância bidirecional recebe uma única perturbação normal com desvio padrão de 5%, preservada nos dois sentidos. As altitudes das cidades e dos passos recebem perturbação normal com desvio padrão de 30 m. Distâncias são truncadas em valor estritamente positivo e a seed é registrada para reprodução. Essa etapa é uma análise de estabilidade sob incerteza, não uma implementação de PARO.
+
+## Execução manual
 
 Execute a partir do diretório `src/`:
 
@@ -125,20 +177,17 @@ for dist, subida, caminho in m.fronteira_pareto:
 "
 ```
 
-Sem dependências externas — apenas biblioteca padrão do Python 3.10+.
+Os algoritmos usam apenas a biblioteca padrão do Python 3.10+. A geração dos gráficos da avaliação requer Matplotlib.
 
 ---
 
 ## Referencias
 
 **Modelo VSP — formulação original:**
-> Jiménez-Palacios, J.L. (1999). *Understanding and Quantifying Motor Vehicle Emissions with Vehicle Specific Power and TILDAS Remote Sensing*. Ph.D. Thesis, Massachusetts Institute of Technology. Conforme citado em Jiang et al. (2025).
-
-**Modelo VSP — aplicação a HDV (veículos pesados):**
-> Gonçalves, G.A., Mendes, T. & Coelho, M. (2016). Impact of driving styles on greenhouse gas emissions from urban freight distribution. *Transportation Research Part D*, 46, 15–31. [https://doi.org/10.1016/j.trd.2016.03.009](https://doi.org/10.1016/j.trd.2016.03.009)
+> Jiménez-Palacios, J.L. (1999). *Understanding and Quantifying Motor Vehicle Emissions with Vehicle Specific Power and TILDAS Remote Sensing*. Ph.D. Thesis, Massachusetts Institute of Technology. [http://hdl.handle.net/1721.1/44505](http://hdl.handle.net/1721.1/44505)
 
 **Modelo VSP — referência de apoio:**
-> Jiang, Y. et al. (2025). Vehicle Specific Power-Based Emission Characterization. *Atmosphere*, 16(2):143. [https://doi.org/10.3390/atmos16020143](https://doi.org/10.3390/atmos16020143)
+> Jiang, B. et al. (2025). Impact of Road Gradient on Fuel Consumption of Light-Duty Diesel Vehicles. *Atmosphere*, 16(2):143. O estudo trata de veículos leves a diesel e é usado apenas como apoio sobre os efeitos de inclinação e velocidade, não como validação para HDV. [https://doi.org/10.3390/atmos16020143](https://doi.org/10.3390/atmos16020143)
 
 **Algoritmo de Martins — caminho mínimo multiobjetivo:**
-> Martins, E.Q.V. (1984). On a Multicriteria Shortest Path Problem. *European Journal of Operational Research*, 16(2), 236–245. [https://doi.org/10.1016/0377-2217(84)90077-8](https://doi.org/10.1016/0377-2217(84)90077-8)
+> Martins, E.Q.V. (1984). On a Multicriteria Shortest Path Problem. *European Journal of Operational Research*, 16(2), 236–245. [https://www.sciencedirect.com/science/article/pii/0377221784900778](https://www.sciencedirect.com/science/article/pii/0377221784900778)

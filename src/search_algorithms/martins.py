@@ -7,7 +7,8 @@
     url: https://www.sciencedirect.com/science/article/pii/0377221784900778
 """
 
-# O(V^2)
+# Algoritmo output-sensitive: o custo depende da quantidade de rótulos
+# gerados. O número de caminhos não dominados pode ser exponencial no pior caso.
 
 import heapq
 from dataclasses import dataclass
@@ -59,6 +60,7 @@ def ganho_elevacao(alt_origem: float, alt_destino: float,
 @dataclass
 class ResultadoMartins:
     """Resultado do algoritmo de Martins."""
+    # Uma rota representativa por vetor de custo (dist_km, subida_m) único.
     fronteira_pareto: list   # [(dist_km, subida_m, caminho: list[str])]
     rotulos_expandidos: int  # total de rótulos tornados permanentes
     tempo_us: float = 0.0
@@ -91,15 +93,17 @@ def _reconstruir_caminho(labels: dict, destino: str, lbl_idx: int) -> list:
 # ---------------------------------------------------------------------------
 def martins(grafo: Grafo, origem: str, destino: str) -> ResultadoMartins:
     """
-    Determina TODOS os caminhos Pareto-ótimos de origem a destino,
-    nos critérios (distância [km], ganho de elevação [m]).
+    Determina os vetores de custo Pareto-ótimos de origem a destino,
+    nos critérios (distância [km], ganho de elevação [m]), retornando uma
+    rota representativa para cada vetor único.
  
     Implementação do Algorithm 1 de Martins (1984), pág. 240.
  
     Pré-condição (Assumption 3, pág. 237):
-        Todo ciclo deve ter custo >= 0, com pelo menos um estritamente positivo.
-        Garantido pelo nosso grafo: arestas de rolamento + aerodinâmica são
-        sempre positivas, tornando ciclos sempre mais caros.
+        Todo ciclo deve ter custo vetorial >= 0, com pelo menos um componente
+        estritamente positivo. No grafo atual, toda aresta tem distância
+        positiva e ganho de elevação não negativo; portanto, todo ciclo tem
+        distância total estritamente positiva.
  
     Parâmetros:
         grafo   : objeto Grafo com lista de adjacência
@@ -179,7 +183,8 @@ def martins(grafo: Grafo, origem: str, destino: str) -> ResultadoMartins:
             heapq.heappush(heap, (novo_d, novo_s, v, novo_idx))
  
     # Step 3: coleta rótulos permanentes e não-dominados em t (o destino)
-    # Cada rótulo permanente corresponde a um caminho Pareto-ótimo
+    # Cada rótulo permanente e não dominado corresponde a um caminho
+    # Pareto-ótimo; custos duplicados são consolidados abaixo.
     rotulos_dest = [
         (lbl.dist, lbl.subida, i)
         for i, lbl in enumerate(L[destino])
