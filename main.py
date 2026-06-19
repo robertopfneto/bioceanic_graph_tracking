@@ -30,7 +30,7 @@ def criar_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--destinos",
         nargs="+",
-        default=["Antofagasta", "Iquique"],
+        default=["Antofagasta"],
     )
     parser.add_argument("--velocidade-kmh", type=float, default=80.0)
     parser.add_argument("--repeticoes-desempenho", type=int, default=1000)
