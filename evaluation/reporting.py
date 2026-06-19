@@ -11,14 +11,25 @@ def formatar_resumo(resultado: ResultadoComparacao) -> str:
     linhas = [
         f"{resultado.origem} -> {resultado.destino} "
         f"({resultado.velocidade_kmh:g} km/h)",
-        "",
-        "Rota             Energia [J/kg]  Distancia [km]  Subida [m]  Passo",
     ]
     for rota in resultado.rotas:
-        linhas.append(
-            f"{rota.identificador:<17} {rota.energia_j_kg:>14.2f}  "
-            f"{rota.distancia_km:>14.2f}  {rota.subida_m:>10.2f}  "
-            f"{rota.passo_andino or '-'}"
+        tipo_expansao = (
+            "Nos expandidos"
+            if rota.algoritmo == "Dijkstra"
+            else "Rotulos expandidos (total da execucao)"
+        )
+        linhas.extend(
+            [
+                "",
+                f"{rota.identificador} ({rota.algoritmo})",
+                f"  Rota: {' -> '.join(rota.caminho) or '-'}",
+                f"  Custo energetico total: {rota.energia_j_kg:.2f} J/kg",
+                f"  Distancia total: {rota.distancia_km:.2f} km",
+                f"  Subida acumulada: {rota.subida_m:.2f} m",
+                f"  {tipo_expansao}: {rota.expandidos}",
+                f"  Tempo de execucao: {rota.tempo_us:.2f} us",
+                f"  Passo andino: {rota.passo_andino or '-'}",
+            ]
         )
     linhas.extend(
         [

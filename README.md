@@ -49,6 +49,11 @@ O grafo representa a **Rota Bioceânica de Capricórnio** com:
 
 **Fontes dos dados geográficos:** IBGE (BR), MOPC (PY), IGN (AR), IGM (CL), Vialidad Nacional AR/CL, Google Maps, DNIT. Data de coleta: junho de 2026.
 
+As cotas altimétricas revisadas incluem Presidente Epitácio (261 m), Pozo Hondo
+(178 m), Misión La Paz (180 m) e Pozo de Maza (152 m). As distâncias dos
+trechos rodoviários representam rotas transitáveis, não distâncias geométricas
+entre as coordenadas.
+
 ---
 
 ## Modelo de custo energético (VSP)
@@ -56,12 +61,13 @@ O grafo representa a **Rota Bioceânica de Capricórnio** com:
 O custo de travessia de cada aresta é uma **estimativa de energia específica [J/kg]** derivada da formulação VSP (*Vehicle Specific Power*), sob velocidade constante e aceleração longitudinal nula:
 
 ```
-E = G·Δh  +  FR_G·d  +  C_AERO·v²·d
+E = G·Δh⁺  +  FR_G·d  +  C_AERO·v²·d
+Δh⁺ = max(0, Δh)
 ```
 
 | Termo | Significado |
 |-------|-------------|
-| `G·Δh` | Energia gravitacional (`G = 9,81 m/s²`) |
+| `G·Δh⁺` | Energia gravitacional associada apenas ao ganho de altitude (`G = 9,81 m/s²`) |
 | `FR_G·d` | Resistência de rolamento (`FR_G = 0,132 m/s²`) |
 | `C_AERO·v²·d` | Resistência aerodinâmica (`C_AERO = 0,000302 m⁻¹`) |
 
@@ -69,9 +75,16 @@ Os coeficientes `FR_G` e `C_AERO` são os valores da formulação VSP adotada co
 
 **Adaptação para passos andinos:** quando `alt_passo_m` está definido, Δh é calculado até o pico, e não apenas até o destino. A energia potencial da descida posterior não é recuperada. Essa é uma hipótese de modelagem deste projeto para evitar subestimar o custo de cruzar os Andes; não é uma regra estabelecida pelos trabalhos de VSP citados.
 
-O grafo é **direcionado**: o custo de u → v difere de v → u em razão do Δh assimétrico.
+O ganho altimétrico é truncado em zero nas descidas. Essa decisão representa
+energia gravitacional não recuperada e garante pesos não negativos, uma
+pré-condição do Dijkstra. O grafo continua **direcionado**: o custo de u → v
+pode diferir de v → u porque uma direção acumula subida enquanto a inversa
+trata a descida como ganho nulo.
 
-Nos trechos sem `alt_passo_m`, o termo gravitacional usa a variação de altitude com sinal. Já Martins acumula somente ganho positivo de elevação. Portanto, energia e subida acumulada são objetivos relacionados, mas não equivalentes; a rota do Dijkstra não precisa pertencer à fronteira `(distância, subida)` de Martins.
+Martins também acumula somente ganho positivo de elevação. Ainda assim, energia
+e subida acumulada não são objetivos equivalentes, pois o custo VSP inclui os
+termos de distância, rolamento e aerodinâmica. Portanto, a rota do Dijkstra não
+precisa pertencer à fronteira `(distância, subida)` de Martins.
 
 ---
 
@@ -110,6 +123,21 @@ Por padrão, o experimento usa origem `Santos`, destinos `Antofagasta` e `Iquiqu
 ```bash
 python main.py --origem Santos --destinos Antofagasta --velocidade-kmh 80
 ```
+
+Para cada destino, o terminal apresenta um bloco para a rota do Dijkstra e um
+para cada solução retornada por Martins. Cada bloco informa:
+
+- caminho completo;
+- custo energético total em J/kg;
+- distância total em quilômetros;
+- subida acumulada em metros;
+- nós expandidos pelo Dijkstra ou rótulos expandidos pelo Martins;
+- tempo da execução principal em microssegundos;
+- passo andino utilizado, quando houver.
+
+No caso de Martins, a quantidade de rótulos e o tempo são totais da execução
+que produziu toda a fronteira de Pareto; por isso, esses valores se repetem nos
+blocos das rotas retornadas.
 
 Os tamanhos padrão dos experimentos podem ser alterados sem modificar o código:
 

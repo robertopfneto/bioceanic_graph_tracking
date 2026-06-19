@@ -10,24 +10,19 @@ Fontes:
     Distâncias    : Google Maps (modo carro), DNIT, MOPC PY, Vialidad AR/CL
     Data coleta   : junho 2026
 
-ATENÇÃO: antes de publicar, verificar se as distâncias correspondem
-ao traçado da Rota 4 oficial (traçado pode mudar com obras em andamento).
 """
 
 from graph import Cidade, Aresta, Grafo
 
 
 def construir_grafo() -> Grafo:
-    """
-    Constrói e retorna o grafo da Rota 4 com 26 vértices e 32 arestas.
-    """
     grafo = Grafo()
 
     # ---- VÉRTICES ----
     cidades = [
         # BRASIL
         Cidade("Santos",                    lat=-23.9608, lon=-46.3331, altitude_m=2),
-        Cidade("Presidente Epitacio",       lat=-21.7634, lon=-52.1122, altitude_m=295),
+        Cidade("Presidente Epitacio",       lat=-21.7634, lon=-52.1122, altitude_m=261),
         Cidade("Tres Lagoas",               lat=-20.7878, lon=-51.7042, altitude_m=320),
         Cidade("Bataguassu",                lat=-21.7142, lon=-52.4222, altitude_m=329),
         Cidade("Nova Alvorada do Sul",      lat=-21.4658, lon=-54.3831, altitude_m=407),
@@ -37,10 +32,10 @@ def construir_grafo() -> Grafo:
         Cidade("Carmelo Peralta",           lat=-21.6883, lon=-57.9014, altitude_m=93),
         Cidade("Loma Plata",                lat=-22.3833, lon=-59.8333, altitude_m=133),
         Cidade("MJF Estigarribia",          lat=-22.0333, lon=-60.6167, altitude_m=163),
-        Cidade("Pozo Hondo",                lat=-22.3333, lon=-62.5333, altitude_m=260),
+        Cidade("Pozo Hondo",                lat=-22.3333, lon=-62.5333, altitude_m=178),
         # ARGENTINA
-        Cidade("Mision La Paz",             lat=-22.3789, lon=-62.5186, altitude_m=262),
-        Cidade("Pozo de Maza",              lat=-22.9511, lon=-62.6189, altitude_m=240),
+        Cidade("Mision La Paz",             lat=-22.3789, lon=-62.5186, altitude_m=180),
+        Cidade("Pozo de Maza",              lat=-22.9511, lon=-62.6189, altitude_m=152),
         Cidade("Tartagal",                  lat=-22.5164, lon=-63.8014, altitude_m=450),
         Cidade("San Salvador de Jujuy",     lat=-24.1856, lon=-65.2994, altitude_m=1259),
         Cidade("Salta",                     lat=-24.7821, lon=-65.4232, altitude_m=1187),
