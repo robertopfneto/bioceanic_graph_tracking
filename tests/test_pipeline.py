@@ -41,9 +41,22 @@ class PipelineTest(unittest.TestCase):
                 "robustez.csv",
                 "robustez.json",
                 "robustez.png",
+                "tabela_vertices.tex",
+                "grafo_rota_otima_antofagasta.png",
+                "grafo_rota_otima_antofagasta.pdf",
             }
             self.assertEqual(esperados, {item.name for item in artefatos.arquivos})
             self.assertTrue(all(item.exists() for item in artefatos.arquivos))
+
+            tabela = (artefatos.diretorio / "tabela_vertices.tex").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("Presidente Epitácio & Brasil & 261 & IBGE", tabela)
+            self.assertIn("Pozo Hondo & Paraguai & 178 & MOPC--PY", tabela)
+            self.assertIn("Paso de Jama & Argentina/Chile & 4.200", tabela)
+            self.assertIn("\\textbf{Fonte}", tabela)
+            self.assertIn("Instituto Brasileiro de Geografia e Estatística", tabela)
+            self.assertIn("Vialidad Nacional Argentina e Vialidad Chile", tabela)
 
 
 if __name__ == "__main__":

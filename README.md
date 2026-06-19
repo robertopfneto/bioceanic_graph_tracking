@@ -158,11 +158,37 @@ Para cada destino são gerados em `outputs/evaluation/<destino>/`:
 - `sensibilidade.csv/json/png`, com as execuções a 40, 60, 80, 100 e 120 km/h e as correlações de Pearson para `v` e `v²`;
 - `robustez.csv/json/png`, com o tamanho da fronteira em cada uma das 2.000 simulações Monte Carlo.
 
+Para Antofagasta, a execução também produz artefatos prontos para o artigo:
+
+- `tabela_vertices.tex`, com os 26 vértices, altitudes corrigidas e fontes;
+- `grafo_rota_otima_antofagasta.pdf`, em formato vetorial para inclusão no LaTeX;
+- `grafo_rota_otima_antofagasta.png`, em alta resolução para inspeção e apresentações.
+
 A comparação principal é entre duas formas de ponderar as arestas: energia escalar VSP, otimizada por Dijkstra, e custo vetorial `(distância, subida)`, otimizado por Martins. A presença da rota do Dijkstra na fronteira é uma análise de compatibilidade entre objetivos, não um teste de correção dos algoritmos.
 
 No benchmark, a ordem de execução dos algoritmos é randomizada em cada repetição após uma fase de aquecimento. O teste Mann-Whitney usa a hipótese alternativa `tempo(Dijkstra) < tempo(Martins)`. Na sensibilidade, `Pearson(v, energia)` atende à análise proposta, enquanto `Pearson(v², energia)` verifica a relação quadrática esperada pela própria formulação VSP.
 
 No Monte Carlo, cada distância bidirecional recebe uma única perturbação normal com desvio padrão de 5%, preservada nos dois sentidos. As altitudes das cidades e dos passos recebem perturbação normal com desvio padrão de 30 m. Distâncias são truncadas em valor estritamente positivo e a seed é registrada para reprodução. Essa etapa é uma análise de estabilidade sob incerteza, não uma implementação de PARO.
+
+### Ambiente de execução dos resultados publicados
+
+Os outputs de referência foram gerados em 18 de junho de 2026 no seguinte
+ambiente:
+
+| Componente | Especificação |
+|------------|---------------|
+| Processador | Intel Core 5 120U, 10 núcleos e 12 threads, frequência máxima de 5,0 GHz |
+| Memória | 14 GiB disponíveis ao sistema operacional |
+| Arquitetura | x86-64 |
+| Sistema operacional | Linux 7.0.0-22-generic |
+| Python | 3.11.0 |
+| Matplotlib | 3.11.0 |
+| SciPy | 1.17.1 |
+
+Essa configuração contextualiza especialmente os arquivos de desempenho. Os
+tempos medidos podem variar conforme carga do sistema, política de frequência
+da CPU, temperatura, versões das bibliotecas e sistema operacional; portanto,
+não devem ser comparados entre máquinas sem controlar essas condições.
 
 ## Execução manual
 

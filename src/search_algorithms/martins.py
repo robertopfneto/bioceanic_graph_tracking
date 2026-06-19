@@ -92,27 +92,6 @@ def _reconstruir_caminho(labels: dict, destino: str, lbl_idx: int) -> list:
 # Algorithm 1 — Martins (1984)
 # ---------------------------------------------------------------------------
 def martins(grafo: Grafo, origem: str, destino: str) -> ResultadoMartins:
-    """
-    Determina os vetores de custo Pareto-ótimos de origem a destino,
-    nos critérios (distância [km], ganho de elevação [m]), retornando uma
-    rota representativa para cada vetor único.
- 
-    Implementação do Algorithm 1 de Martins (1984), pág. 240.
- 
-    Pré-condição (Assumption 3, pág. 237):
-        Todo ciclo deve ter custo vetorial >= 0, com pelo menos um componente
-        estritamente positivo. No grafo atual, toda aresta tem distância
-        positiva e ganho de elevação não negativo; portanto, todo ciclo tem
-        distância total estritamente positiva.
- 
-    Parâmetros:
-        grafo   : objeto Grafo com lista de adjacência
-        origem  : nome da cidade de origem (s)
-        destino : nome da cidade de destino (t)
- 
-    Retorna:
-        ResultadoMartins com fronteira de Pareto em L[t]
-    """
     if origem not in grafo.cidades:
         raise ValueError(f"Origem '{origem}' não existe no grafo.")
     if destino not in grafo.cidades:

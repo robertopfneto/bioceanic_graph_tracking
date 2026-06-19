@@ -2,6 +2,7 @@
 
 from graph import Grafo
 
+from .article_artifacts import gerar_artefatos_artigo
 from .comparison import comparar_ponderacoes
 from .experiment_exporters import exportar_experimentos
 from .experiment_plotting import gerar_graficos_experimentos
@@ -40,10 +41,11 @@ def executar_avaliacao(
     figuras = gerar_graficos(grafo, resultado, diretorio)
     dados_experimentos = exportar_experimentos(experimentos, diretorio)
     figuras_experimentos = gerar_graficos_experimentos(experimentos, diretorio)
+    artigo = gerar_artefatos_artigo(grafo, resultado, diretorio)
 
     return ArtefatosAvaliacao(
         resultado=resultado,
         experimentos=experimentos,
         diretorio=diretorio,
-        arquivos=dados + figuras + dados_experimentos + figuras_experimentos,
+        arquivos=dados + figuras + dados_experimentos + figuras_experimentos + artigo,
     )

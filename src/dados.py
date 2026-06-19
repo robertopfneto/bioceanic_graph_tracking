@@ -15,6 +15,48 @@ Fontes:
 from graph import Cidade, Aresta, Grafo
 
 
+# Metadados editoriais. Altitudes e coordenadas continuam tendo como fonte
+# unica as instancias de Cidade construidas abaixo.
+METADADOS_VERTICES = {
+    "Santos": ("Santos", "Brasil", "IBGE"),
+    "Presidente Epitacio": ("Presidente Epitácio", "Brasil", "IBGE"),
+    "Tres Lagoas": ("Três Lagoas", "Brasil", "IBGE"),
+    "Bataguassu": ("Bataguassu", "Brasil", "IBGE"),
+    "Nova Alvorada do Sul": ("Nova Alvorada do Sul", "Brasil", "IBGE"),
+    "Campo Grande": ("Campo Grande", "Brasil", "IBGE"),
+    "Porto Murtinho": ("Porto Murtinho", "Brasil", "IBGE"),
+    "Carmelo Peralta": ("Carmelo Peralta", "Paraguai", "MOPC--PY"),
+    "Loma Plata": ("Loma Plata", "Paraguai", "MOPC--PY"),
+    "MJF Estigarribia": ("M.J.F. Estigarribia", "Paraguai", "MOPC--PY"),
+    "Pozo Hondo": ("Pozo Hondo", "Paraguai", "MOPC--PY"),
+    "Mision La Paz": ("Misión La Paz", "Argentina", "IGN--AR"),
+    "Pozo de Maza": ("Pozo de Maza", "Argentina", "IGN--AR"),
+    "Tartagal": ("Tartagal", "Argentina", "IGN--AR"),
+    "San Salvador de Jujuy": ("San Salvador de Jujuy", "Argentina", "IGN--AR"),
+    "Salta": ("Salta", "Argentina", "IGN--AR"),
+    "Susques": ("Susques", "Argentina", "IGN--AR"),
+    "Paso de Jama": ("Paso de Jama", "Argentina/Chile", "Vialidad AR/CL"),
+    "San Antonio de los Cobres": (
+        "San Antonio de los Cobres", "Argentina", "IGN--AR"
+    ),
+    "Paso de Sico": ("Paso de Sico", "Argentina/Chile", "Vialidad AR/CL"),
+    "San Pedro de Atacama": ("San Pedro de Atacama", "Chile", "IGM--CL"),
+    "Calama": ("Calama", "Chile", "IGM--CL"),
+    "Baquedano": ("Baquedano", "Chile", "IGM--CL"),
+    "Mejillones": ("Mejillones", "Chile", "IGM--CL"),
+    "Antofagasta": ("Antofagasta", "Chile", "IGM--CL"),
+    "Iquique": ("Iquique", "Chile", "IGM--CL"),
+}
+
+FONTES_VERTICES = {
+    "IBGE": "Instituto Brasileiro de Geografia e Estatística",
+    "MOPC--PY": "Ministerio de Obras Públicas y Comunicaciones do Paraguai",
+    "IGN--AR": "Instituto Geográfico Nacional da Argentina",
+    "IGM--CL": "Instituto Geográfico Militar do Chile",
+    "Vialidad AR/CL": "Vialidad Nacional Argentina e Vialidad Chile",
+}
+
+
 def construir_grafo() -> Grafo:
     grafo = Grafo()
 
