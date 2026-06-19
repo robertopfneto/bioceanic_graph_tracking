@@ -1,6 +1,6 @@
 # bioceanic_graph_tracking
 
-Modelagem e otimização de rotas na **Rota Bioceânica de Capricórnio (Rota 4)** — trecho Santos (BR) → Antofagasta/Iquique (CL), atravessando Paraguai e Argentina. O projeto fundamenta um artigo acadêmico que compara estratégias de rota por dois critérios: **custo energético** (modelo VSP) e **eficiência multiobjetivo** (fronteira de Pareto distância × ganho de elevação).
+Modelagem e otimização de rotas na **Rota Bioceânica de Capricórnio (Rota 4)** — trecho Santos (BR) → Antofagasta (CL), atravessando Paraguai e Argentina. O projeto fundamenta um artigo acadêmico que compara estratégias de rota por dois critérios: **custo energético** (modelo VSP) e **eficiência multiobjetivo** (fronteira de Pareto distância × ganho de elevação).
 
 ---
 
