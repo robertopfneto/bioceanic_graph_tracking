@@ -234,6 +234,7 @@ for dist, subida, caminho in m.fronteira_pareto:
 Os algoritmos usam apenas a biblioteca padrão do Python 3.10+. A geração dos gráficos da avaliação requer Matplotlib.
 
 ---
+Feito por Roberto Neto com auxílio de ferramentas de Inteligência Artificial.
 
 ## Referencias
 
